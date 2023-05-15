@@ -1,0 +1,43 @@
+version: '3'
+services:
+  apache_cafe-comleitura:
+    build: .
+    depends_on:
+      - mysql_cafe_comleitura
+    volumes:
+      - ../site:/var/www/site
+      - ../gerenciador:/var/www/gerenciador
+      - ./config/php.ini:/usr/local/etc/php/php.ini
+    ports:
+      - "80:80"
+    networks:
+      cafe-comleitura:
+        aliases:
+          - cafe-comleitura.local
+          - gerenciador.cafe-comleitura.local
+
+  mysql_cafe_comleitura:
+    image: mysql:5.7
+    container_name: mysql_cafe_comleitura
+    command: --default-authentication-plugin=mysql_native_password --sql_mode=""
+    restart: always
+    environment:
+      MYSQL_DATABASE: mysql_cafe_comleitura
+      MYSQL_ROOT_PASSWORD: 123456
+    volumes:
+      - cafe-comleitura-mysql:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      cafe-comleitura:
+
+volumes:
+  cafe-comleitura-mysql:
+
+networks:
+  cafe-comleitura:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.28.0.0/16
